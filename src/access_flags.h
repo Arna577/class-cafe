@@ -1,8 +1,10 @@
 #pragma once
-#include "detail/types.h"
+#include "detail/common.h"
 
 namespace classcafe {
     enum class ClassAccess : u2 {
+        Default = 0, // package-private class
+
         Public     = 0x0001,
         Final      = 0x0010,
         Super      = 0x0020,   // always set this on new classes
@@ -15,6 +17,8 @@ namespace classcafe {
     };
 
     enum class FieldAccess : u2 {
+        Default = 0, // package-private mutable
+
         Public    = 0x0001,
         Private   = 0x0002,
         Protected = 0x0004,
@@ -27,6 +31,8 @@ namespace classcafe {
     };
 
     enum class MethodAccess : u2 {
+        Default = 0, // package-private
+
         Public       = 0x0001,
         Private      = 0x0002,
         Protected    = 0x0004,
@@ -57,6 +63,8 @@ namespace classcafe {
 
     // MethodParameters attribute entries
     enum class ParameterAccess : u2 {
+        Default = 0, // mutable
+
         Final     = 0x0010,
         Synthetic = 0x1000,
         Mandated  = 0x8000,

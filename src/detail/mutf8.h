@@ -1,8 +1,6 @@
 // Modified UTF-8
 #pragma once
-#include <string>
-#include <string_view>
-#include "types.h"
+#include "common.h"
 
 namespace classcafe::detail
 {

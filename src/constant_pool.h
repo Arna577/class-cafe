@@ -1,6 +1,6 @@
 #pragma once
+#include "detail/common.h"
 #include "detail/mutf8.h"
-#include "detail/types.h"
 #include "constant_info.h"
 #include "result.h"
 

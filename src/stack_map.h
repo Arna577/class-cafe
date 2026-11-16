@@ -1,6 +1,6 @@
 #pragma once
 #include <variant>
-#include "detail/types.h"
+#include "detail/common.h"
 
 namespace classcafe::StackMap
 {

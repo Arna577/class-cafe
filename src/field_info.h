@@ -1,7 +1,7 @@
 #pragma once
 #include "access_flags.h"
 #include "attribute_info.h"
-#include "detail/types.h"
+#include "detail/common.h"
 
 namespace classcafe
 {

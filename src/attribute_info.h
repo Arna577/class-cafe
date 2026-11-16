@@ -1,10 +1,9 @@
 #pragma once
-#include <variant>
-#include <vector>
+#include "detail/common.h"
 #include "access_flags.h"
 #include "annotation.h"
-#include "detail/types.h"
 #include "stack_map.h"
+#include <variant>
 
 namespace classcafe
 {
@@ -125,6 +124,15 @@ namespace classcafe
             Vec<Method> bootstrap_methods;
         };
 
+        struct MethodParameters {
+            struct Parameter {
+                u2 name_index;
+                u2 access_flags;
+            };
+
+            Vec<Parameter> parameters;
+        };
+
         struct Info {
             using Kind = std::variant<ConstantValue, Code, StackMapTable, Exceptions, InnerClasses, EnclosingMethod, 
                 Synthetic, Signature, SourceFile, SourceDebugExtension,
@@ -132,7 +140,8 @@ namespace classcafe
                 Deprecated, 
                 RuntimeVisibleAnnotations, RuntimeInvisibleAnnotations,
                 RuntimeVisibleParameterAnnotations, RuntimeInvisibleParameterAnnotations,
-                AnnotationDefault, BootstrapMethods>;
+                AnnotationDefault, BootstrapMethods,
+                MethodParameters>;
             u2 attribute_name_index;
             Kind kind;
         };

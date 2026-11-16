@@ -1,13 +1,16 @@
 #pragma once
-#include <string>
+#include "detail/common.h"
 #include <variant>
-#include "detail/types.h"
 
 namespace classcafe
 {
     namespace Constant
     {
-        struct Unusable { static constexpr u1 tag = 0; };
+        struct Unusable {
+            static constexpr u1 tag = 0;
+            // TODO: add this to all the constant info types
+            bool operator==(Unusable const& other) const { return this == &other; }
+        };
 
         struct Utf8 {
             static constexpr u1 tag = 1;

@@ -1,7 +1,6 @@
 #pragma once
-#include <vector>
+#include "detail/common.h"
 #include <variant>
-#include "detail/types.h"
 
 namespace classcafe::Annotations
 {

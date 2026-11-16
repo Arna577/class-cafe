@@ -1,10 +1,10 @@
 #pragma once
+#include "detail/common.h"
 #include "access_flags.h"
 #include "attribute_info.h"
 #include "constant_info.h"
 #include "field_info.h"
 #include "method_info.h"
-#include "detail/types.h"
 
 namespace classcafe
 {

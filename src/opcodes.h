@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/types.h"
+#include "detail/common.h"
 
 namespace classcafe
 {
