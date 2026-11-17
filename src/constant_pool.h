@@ -25,16 +25,23 @@ namespace classcafe
 			_constants.push_back(info);
 		}
 
-		u2 intern(Constant::Info&& info) {
-			for (u2 i = 0; i < num_constants(); ++i) {
-				if (_constants[i] == info) return i;
-			}
-			add(std::move(info));
-			return last();
-		}
-
 		void add_unusable() {
 			add(Constant::Unusable());
+		}
+
+		u2 intern(Constant::Info&& info) {
+			for (u2 i = 0; i < num_constants(); ++i)
+				if (_constants[i] == info)
+					return i;
+
+			bool two_slots = Constant::takes_two_slots(info);
+
+			add(std::move(info));
+
+			if (two_slots)
+				add_unusable();
+
+			return last();
 		}
 
 		Result<u2> intern_utf8(std::string_view s) {
@@ -46,9 +53,7 @@ namespace classcafe
 			if (out.size() > 0xffff)
 				return Result<u2>(Error::StringTooLong);
 
-			intern(Constant::Utf8(out));
-
-			return Result<u2>(last());
+			return Result<u2>(intern(Constant::Utf8(out)));
 		}
 
 		u2 intern_integer(int32_t i) {
@@ -61,14 +66,14 @@ namespace classcafe
 
 		u2 intern_long(int64_t l) {
 			u2 out = intern(Constant::Long(l));
-			add_unusable();
 			return out;
 		}
 
 		u2 intern_double(double d) {
 			u2 out = intern(Constant::Double(d));
-			add_unusable();
 			return out;
 		}
+
+		ConstantPool() { add_unusable(); }
 	};
 }

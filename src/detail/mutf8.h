@@ -34,7 +34,7 @@ namespace classcafe::detail
 			}
 
 			if (len > 1 && cp < min_codepoints[len]) return false; // overlong
-			if (cp > 0x10FFF || (cp >= 0xD800 && cp <= 0xDFFF)) return false;
+			if (cp > 0x10FFFF || (cp >= 0xD800 && cp <= 0xDFFF)) return false;
 			i += len;
 
 			if (cp == 0) { out.push_back(0xC0); out.push_back(0x80); }

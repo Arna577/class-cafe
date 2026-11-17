@@ -42,15 +42,14 @@ namespace classcafe
 		Vec<FieldBody> fields;
 	};
 
-	Class Class::make(ClassAccess access)
+	Class Class::make(std::string_view name, ClassAccess access)
 	{
 		Class b;
-		b._impl = std::make_unique<ClassImpl>();
-		b._impl->access = access;
+		b._impl = std::make_unique<ClassImpl>(std::string(name), access);
 		return b;
 	}
 
-	Method Class::addMethod(std::string_view name, Slice<ParameterSpec> parameters, JVMType return_type, MethodAccess access)
+	Method Class::add_method(std::string_view name, Slice<ParameterSpec> parameters, JVMType return_type, MethodAccess access)
 	{
 		auto id = _impl->methods.size();
 
@@ -64,7 +63,7 @@ namespace classcafe
 		return Method(_impl.get(), u4(id));
 	}
 
-	Field Class::addField(std::string_view name, JVMType type, FieldAccess access)
+	Field Class::add_field(std::string_view name, JVMType type, FieldAccess access)
 	{
 		auto id = _impl->fields.size();
 

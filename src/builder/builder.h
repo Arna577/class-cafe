@@ -48,11 +48,37 @@ namespace classcafe
 		std::unique_ptr<ClassImpl> _impl;
 		Class();
 	public:
-		static Class make(ClassAccess access = ClassAccess::Default);
+		/// Creation
+
+		static Class make(
+			std::string_view name, 
+			ClassAccess access = ClassAccess::Default
+		);
+
+		/// Building
 		
-		Method addMethod(std::string_view name, Slice<ParameterSpec> parameters = {}, JVMType return_type = BaseType::Void, MethodAccess access = MethodAccess::Default);
+		Method add_method(
+			std::string_view name, 
+			Slice<ParameterSpec> parameters = {}, 
+			JVMType return_type = BaseType::Void, 
+			MethodAccess access = MethodAccess::Default
+		);
+
+		// TODO: Method addConstructor
 		
-		Field addField(std::string_view name, JVMType type, FieldAccess access = FieldAccess::Default);
+		Field add_field(
+			std::string_view name, 
+			JVMType type, 
+			FieldAccess access = FieldAccess::Default
+		);
+
+		// TODO: addInterface
+
+		/// Properties
+
+		// TODO: std::string descriptor()
+
+		/// details
 
 		~Class();
 		Class(Class&&);

@@ -20,7 +20,16 @@ namespace classcafe
         constexpr bool is_array() const { return dims > 0; }
         constexpr bool is_reference() const { return dims > 0 || base == BaseType::Reference; }
 
-        constexpr JVMType element_type() const { return { base, u1(dims - 1) }; }  // careful with refs, see below
+        constexpr JVMType element_type() const {
+            JVMType copy = *this;
+            --copy.dims;
+            return copy;
+        }
+
+        constexpr JVMType& array() {
+            ++dims;
+            return *this;
+        }
 
         friend constexpr bool operator==(JVMType const& a, JVMType const& b) {
             return a.base == b.base && a.dims == b.dims &&

@@ -78,18 +78,18 @@ namespace classcafe {
             return static_cast<E>(static_cast<U>(a) op static_cast<U>(b)); \
         }
 
-    FLAG_OP(|)
-    FLAG_OP(&)
-    #undef FLAG_OP
-
-    template <class E> requires enable_flag_ops<E>
-    constexpr bool has(E value, E flag) { return (value & flag) == flag; }
-
     // Enable bitwise operations
     template <class E, class... Ts>
     inline constexpr bool is_one_of = (std::is_same_v<E, Ts> || ...);
 
     template <class E> inline constexpr bool enable_flag_ops =
         is_one_of<E, ClassAccess, FieldAccess, MethodAccess,
-                    InnerClassAccess, ParameterAccess>;
+        InnerClassAccess, ParameterAccess>;
+
+    FLAG_OP(|)
+    FLAG_OP(&)
+    #undef FLAG_OP
+
+    template <class E> requires enable_flag_ops<E>
+    constexpr bool has(E value, E flag) { return (value & flag) == flag; }
 }

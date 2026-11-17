@@ -6,29 +6,32 @@ namespace classcafe
 {
     namespace Constant
     {
+#define default_eq(T) bool operator==(T const&) const = default
+
         struct Unusable {
             static constexpr u1 tag = 0;
-            // TODO: add this to all the constant info types
-            bool operator==(Unusable const& other) const { return this == &other; }
+            default_eq(Unusable);
         };
 
         struct Utf8 {
             static constexpr u1 tag = 1;
             std::string bytes;
+            default_eq(Utf8);
         };
 
-        struct Integer { static constexpr u1 tag = 3; int32_t value; };
-        struct Float   { static constexpr u1 tag = 4; float value; };
-        struct Long    { static constexpr u1 tag = 5; int64_t value; };   // takes two pool slots
-        struct Double  { static constexpr u1 tag = 6; double value; };    // takes two pool slots
+        struct Integer { static constexpr u1 tag = 3; int32_t value; default_eq(Integer); };
+        struct Float   { static constexpr u1 tag = 4; float value; default_eq(Float); };
+        struct Long    { static constexpr u1 tag = 5; int64_t value; default_eq(Long); };   // takes two pool slots
+        struct Double  { static constexpr u1 tag = 6; double value; default_eq(Double); };    // takes two pool slots
 
-        struct String { static constexpr u1 tag = 8;  u2 string_index; };
-        struct MethodType { static constexpr u1 tag = 16; u2 descriptor_index; };
+        struct String { static constexpr u1 tag = 8;  u2 string_index; default_eq(String); };
+        struct MethodType { static constexpr u1 tag = 16; u2 descriptor_index; default_eq(MethodType); };
 
         struct NameAndType {
             static constexpr u1 tag = 12;
             u2 name_index;
             u2 descriptor_index;
+            default_eq(NameAndType);
         };
 
         enum class RefKind : u1 {
@@ -41,6 +44,7 @@ namespace classcafe
             static constexpr u1 tag = 15;
             RefKind reference_kind;
             u2 reference_index;
+            default_eq(MethodHandle);
         };
 
         // Identical layouts share one template, but each alias is a
@@ -48,6 +52,7 @@ namespace classcafe
         template <u1 T> struct NameRef {
             static constexpr u1 tag = T;
             u2 name_index;
+            default_eq(NameRef);
         };
         using Class   = NameRef<7>;
         using Module  = NameRef<19>;   // module-info only
@@ -57,6 +62,7 @@ namespace classcafe
             static constexpr u1 tag = T;
             u2 class_index;
             u2 name_and_type_index;
+            default_eq(MemberRef);
         };
         using Fieldref           = MemberRef<9>;
         using Methodref          = MemberRef<10>;
@@ -66,6 +72,7 @@ namespace classcafe
             static constexpr u1 tag = T;
             u2 bootstrap_method_attr_index;
             u2 name_and_type_index;
+            default_eq(BootstrapRef);
         };
         using Dynamic       = BootstrapRef<17>;
         using InvokeDynamic = BootstrapRef<18>;
