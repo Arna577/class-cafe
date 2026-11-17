@@ -1,5 +1,4 @@
 #pragma once
-#include <variant>
 #include "detail/common.h"
 
 namespace classcafe::StackMap

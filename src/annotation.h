@@ -1,6 +1,5 @@
 #pragma once
 #include "detail/common.h"
-#include <variant>
 
 namespace classcafe::Annotations
 {

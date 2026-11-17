@@ -2,7 +2,6 @@
 #include "../detail/common.h"
 #include "../access_flags.h"
 #include "type.h"
-#include <memory>
 
 namespace classcafe
 {

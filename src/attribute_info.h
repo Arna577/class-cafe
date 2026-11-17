@@ -3,7 +3,6 @@
 #include "access_flags.h"
 #include "annotation.h"
 #include "stack_map.h"
-#include <variant>
 
 namespace classcafe
 {

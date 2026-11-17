@@ -1,7 +1,6 @@
 #pragma once
 #include "detail/common.h"
 #include "opcodes.h"
-#include <variant>
 
 namespace classcafe
 {

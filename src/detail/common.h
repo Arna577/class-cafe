@@ -1,9 +1,20 @@
 #pragma once
-#include <cstdint>
-#include <string>
-#include <string_view>
-#include <vector>
-#include <span>
+
+#if CLASSCAFE_STD_PROVIDED // define if the includer defines 'import std;'
+
+#elif CLASSCAFE_IMPORT_STD
+import std;
+#else
+#   include <cstdint>
+#   include <format>
+#   include <iostream>
+#   include <memory>
+#   include <span>
+#   include <string>
+#   include <string_view>
+#   include <variant>
+#   include <vector>
+#endif
 
 namespace classcafe {
     using u4 = std::uint32_t;
@@ -54,9 +65,9 @@ namespace classcafe {
         } while (0)
 #else
 #   if defined(_MSC_VER)
-#      define unreachable __assume(false)
+#      define classcafe_unreachable __assume(false)
 #   else
-#      define unreachable __builtin_unreachable()
+#      define classcafe_unreachable __builtin_unreachable()
 #   endif
 #endif
 
@@ -72,5 +83,5 @@ namespace classcafe {
             }                                                         \
         } while (0)
 #else
-#   define assert(condition) ((condition) ? (void)0 : unreachable)
+#   define classcafe_assert(condition) ((condition) ? (void)0 : unreachable)
 #endif
