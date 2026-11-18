@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/common.h"
+#include "../detail/common.h"
 
 namespace classcafe::Annotations
 {

@@ -1,7 +1,8 @@
 #pragma once
 #include "builder/builder.h"
-#include "constant_pool.h"
+#include "data/constant_pool.h"
 #include "detail/mutf8.h"
+#include "writer/writer.h"
 
 namespace classcafe
 {
@@ -165,10 +166,10 @@ namespace classcafe
 			void hello_world_test() {
 				auto c = Class::make("HelloWorld");
 				ParameterSpec params[] = { { "args", JVMType("java/lang/String").array() } };
-				auto m = c.add_method("Main", params, BaseType::Void, MethodAccess::Static);
-
-				/* a bit hands-on but probably 
+				auto m = c.add_method("main", params, BaseType::Void, MethodAccess::Public | MethodAccess::Static);
 				
+				/* a bit hands-on but probably
+
 				CodeBuilder code = m.code();
 				code.get_static(jdk::System_out);
 				code.ldc("Hello, World!");
@@ -186,6 +187,92 @@ namespace classcafe
 				// execute; fail if exit_code != 0
 				// preferably also find out if it actually printed hello, world
 			}
+
+			// Hand-builds a ClassFile for Hello.class, encodes it and writes it to disk.
+			// Prints "zero" with no arguments and "nonzero" otherwise, so running it
+			// (java -cp classcafe/tests Hello [args]) also checks the branch and the StackMapTable.
+			void class_file_test(u2 major = 52) {
+				namespace C = Constant; namespace A = Attribute; namespace S = StackMap;
+
+				Vec<C::Info> pool = { C::Unusable{} };
+				auto add = [&](C::Info c) -> u2 {
+					u2 idx = u2(pool.size());
+					bool two = C::takes_two_slots(c);
+					pool.push_back(std::move(c));
+					if (two) pool.push_back(C::Unusable{});
+					return idx;
+					};
+				auto cls = [&](std::string_view name) { return add(C::Class{ add(C::Utf8{ std::string(name) }) }); };
+				auto nat = [&](std::string_view n, std::string_view d) {
+					return add(C::NameAndType{ add(C::Utf8{ std::string(n) }), add(C::Utf8{ std::string(d) }) });
+					};
+
+				u2 c_hello = cls("Hello"), c_obj = cls("java/lang/Object");
+				u2 c_sys = cls("java/lang/System"), c_ps = cls("java/io/PrintStream");
+				u2 c_strarr = cls("[Ljava/lang/String;"), c_str = cls("java/lang/String");
+				u2 f_out = add(C::Fieldref{ c_sys, nat("out", "Ljava/io/PrintStream;") });
+				u2 m_println = add(C::Methodref{ c_ps, nat("println", "(Ljava/lang/String;)V") });
+				u2 s_zero = add(C::String{ add(C::Utf8{ "zero" }) });
+				u2 s_nonzero = add(C::String{ add(C::Utf8{ "nonzero" }) });
+				u2 u_main = add(C::Utf8{ "main" }), u_desc = add(C::Utf8{ "([Ljava/lang/String;)V" });
+				u2 u_code = add(C::Utf8{ "Code" }), u_smt = add(C::Utf8{ "StackMapTable" });
+
+				// check every constant kind's layout
+				add(C::Long{ 0x0102030405060708 }); add(C::Double{ 3.5 });
+				add(C::Float{ 1.5f }); add(C::Integer{ -7 });
+				add(C::Utf8{ "a\xC0\x80" "b\xED\xA0\xBD\xED\xB8\x80" });   // NUL and U+1F600, as modified UTF-8
+				if (major >= 51) { add(C::MethodType{ u_desc }); add(C::MethodHandle{ C::RefKind::InvokeVirtual, m_println }); }
+
+				auto hi = [](u2 v) { return u1(v >> 8); };
+				auto lo = [](u2 v) { return u1(v); };
+				Vec<u1> code = {
+					0xB2, hi(f_out), lo(f_out),         //  0: getstatic System.out
+					0x2A,                               //  3: aload_0
+					0xBE,                               //  4: arraylength
+					0x9A, 0x00, 0x08,                   //  5: ifne -> 13
+					0x12, u1(s_zero),                   //  8: ldc "zero"
+					0xA7, 0x00, 0x05,                   // 10: goto -> 15
+					0x12, u1(s_nonzero),                // 13: ldc "nonzero"
+					0xB6, hi(m_println), lo(m_println), // 15: invokevirtual println
+					0xB1,                               // 18: return
+				};
+
+				Vec<A::Info> code_attrs;
+				if (major >= 50) code_attrs.push_back({ u_smt, A::StackMapTable{ {
+					S::SameLocals1{ 13, S::Object{ c_ps } },                                            // frame at 13
+					S::Full{ 1,{ S::Object{ c_strarr } },{ S::Object{ c_ps }, S::Object{ c_str } } }, // frame at 15
+				} } });
+
+				ClassFile cf{};
+				cf.minor_version = 0;
+				cf.major_version = major;
+				cf.constant_pool = pool;
+				cf.access_flags = ClassAccess::Public | ClassAccess::Super;
+				cf.this_class = c_hello;
+				cf.super_class = c_obj;
+				cf.methods.push_back(MethodInfo{ MethodAccess::Public | MethodAccess::Static, u_main, u_desc,
+					{ { u_code, A::Code{ 2, 1, code,{}, code_attrs } } } });
+
+				ByteWriter w;
+				if (Error e = w.encode(cf); e != Error::None) {
+					fail("class_file [v{}]: encode failed with error {}", major, int(e));
+					return;
+				}
+
+				std::string_view path = "data/classcafe/tests/Hello.class";
+				std::error_code ec;
+				std::filesystem::create_directories(std::filesystem::path(path).parent_path(), ec);
+
+				std::ofstream f(path.data(), std::ios::binary);
+				if (!f) {
+					fail("class_file [v{}]: could not open {} for writing", major, path);
+					return;
+				}
+				w.dump(f);
+				f.flush();
+				if (!f)
+					fail("class_file [v{}]: writing {} failed", major, path);
+			}
 		} test;
 #undef fail
 
@@ -194,6 +281,7 @@ namespace classcafe
 		test.mutf8_length_limit_test();
 		test.invalid_utf8_error_test();
 		// test.hello_world_test();  // enable once the writer exists
+		test.class_file_test();
 
 		if (test.is_ok())
 			std::cout << "Tests " "\033[0;32m" "PASSED" "\033[0m" "\n";

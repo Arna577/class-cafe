@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/common.h"
+#include "../detail/common.h"
 #include "access_flags.h"
 #include "attribute_info.h"
 #include "constant_info.h"

@@ -5,13 +5,17 @@
 #elif CLASSCAFE_IMPORT_STD
 import std;
 #else
+#	include <bit>
 #   include <cstdint>
+#   include <filesystem>
 #   include <format>
+#   include <fstream>
 #   include <iostream>
 #   include <memory>
 #   include <span>
 #   include <string>
 #   include <string_view>
+#	include <type_traits>
 #   include <variant>
 #   include <vector>
 #endif

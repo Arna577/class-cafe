@@ -1,8 +1,8 @@
 #pragma once
-#include "detail/common.h"
-#include "detail/mutf8.h"
+#include "../detail/common.h"
+#include "../detail/mutf8.h"
+#include "../result.h"
 #include "constant_info.h"
-#include "result.h"
 
 namespace classcafe
 {
@@ -20,6 +20,8 @@ namespace classcafe
 		size_t num_constants() const { return _constants.size(); }
 		size_t last() const { return _constants.size() - 1; }
 		bool overflowed() const { return _constants.size() > 0xffff; }
+
+		operator Vec<Constant::Info>() const { return _constants; }
 
 		void add(Constant::Info&& info) {
 			_constants.push_back(info);
@@ -56,7 +58,7 @@ namespace classcafe
 			return Result<u2>(intern(Constant::Utf8(out)));
 		}
 
-		u2 intern_integer(int32_t i) {
+		u2 intern_integer(i4 i) {
 			return intern(Constant::Integer(i));
 		}
 
@@ -64,14 +66,12 @@ namespace classcafe
 			return intern(Constant::Float(f));
 		}
 
-		u2 intern_long(int64_t l) {
-			u2 out = intern(Constant::Long(l));
-			return out;
+		u2 intern_long(i8 l) {
+			return intern(Constant::Long(l));
 		}
 
 		u2 intern_double(double d) {
-			u2 out = intern(Constant::Double(d));
-			return out;
+			return intern(Constant::Double(d));
 		}
 
 		ConstantPool() { add_unusable(); }

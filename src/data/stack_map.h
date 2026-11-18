@@ -1,5 +1,5 @@
 #pragma once
-#include "detail/common.h"
+#include "../detail/common.h"
 
 namespace classcafe::StackMap
 {
@@ -17,12 +17,15 @@ namespace classcafe::StackMap
 	using VType = std::variant<Top, Integer, Float, Double, Long, Null, 
 		UninitializedThis, Object, Uninitialized>;
 
-	// Frames
+	// offset_delta is the raw value stored in the class file; 
+	// the first frame is at bytecode offset offset_delta, 
+	// every later one is at previous_offset + offset_delta + 1
+	// The writer picks the short or extended encoding from offset_delta
 	struct Same         { u2 offset_delta; };
-	struct SameLocals1  { u2 offset_delta; };
-	struct Chop         { u2 offset_delta; };
-	struct Append       { u2 offset_delta; };
-	struct Full         { u2 offset_delta; };
+	struct SameLocals1  { u2 offset_delta; VType stack; };
+	struct Chop         { u2 offset_delta; u1 k; };            // k = locals removed, 1..3
+	struct Append       { u2 offset_delta; Vec<VType> locals; }; // 1..3 locals
+	struct Full         { u2 offset_delta; Vec<VType> locals; Vec<VType> stack; };
 	
 	using Frame = std::variant<Same, SameLocals1, Chop, Append, Full>;
 }
